@@ -6,7 +6,7 @@ def rename_files_with_numbers(directory):
 
     for index, filename in enumerate(files, start=1):    
         file_name, file_extension = os.path.splitext(filename)
-        file_name = file_name[8:]
+        # file_name = file_name[8:]
         # Формируем новое имя, добавляя число в начало
         new_name = f"dog_{file_name}{file_extension}"
         
