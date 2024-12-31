@@ -14,6 +14,8 @@ from sklearn.metrics import confusion_matrix
 import itertools
 import matplotlib.pyplot as plt
 
+import os.path
+
 train_labels = []
 train_samples = []
 
@@ -130,3 +132,11 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
 
 cm_plot_labels = ["no side effects", "had_side_effects"]    
 plot_confusion_matrix(cm=cm, classes=cm_plot_labels, title='Confusion Matrix')
+
+# save model
+
+if os.path.isfile('./models/medical_trial_model.h5') is False:
+    model.save('./models/medical_trial_model.h5')
+
+if os.path.isfile('./models/medical_trial_model_weights.h5') is False:    
+    model.save_weights('./models/medical_trial_model_weights.h5')
