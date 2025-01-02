@@ -1,10 +1,11 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Activation, Dense, Flatten
+from tensorflow.keras.layers import Activation, Dense, Flatten, Conv2D, MaxPool2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import categorical_crossentropy
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import load_model
 from sklearn.metrics import confusion_matrix
 import itertools
 import os
@@ -13,41 +14,25 @@ import random
 import glob
 import matplotlib.pyplot as plt
 import warnings
+import numpy as np
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
-# physical_devices = tf.config.experimental.list_physical_devices("GPU")
-# print('Num GPUs Available')
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-os.chdir('recognise-pets/pet-images')
-if os.path.isdir("train/dog") is False:
-    os.makedirs("train/dog")
-    os.makedirs("train/cat")
-    os.makedirs("valid/dog")
-    os.makedirs("valid/cat")
-    os.makedirs("test/dog")
-    os.makedirs("test/cat")
-        
-    cat_files ='train/cat*'
-    dog_files = 'train/dog*'
-    
-    for c in random.sample(glob.glob(cat_files), 500):
-        shutil.move(c, 'train/cat')        
-    for c in random.sample(glob.glob(dog_files), 500):
-        shutil.move(c, 'train/dog')
+def plotImages(images_arr):
+    fig, axes = plt.subplots(1, 10, figsize=(20,20))
+    axes = axes.flatten()
+    for img, ax in zip(images_arr, axes):
+        ax.imshow(img)
+        ax.axis('off')
+    plt.tight_layout()
+    plt.show()
 
-    for c in random.sample(glob.glob(cat_files), 100):
-        shutil.move(c, 'valid/cat')        
-    for c in random.sample(glob.glob(dog_files), 100):
-        shutil.move(c, 'valid/dog')
+os.chdir('recognise-pets')
 
-    for c in random.sample(glob.glob(cat_files), 50):
-        shutil.move(c, 'test/cat')
-    for c in random.sample(glob.glob(dog_files), 50):
-        shutil.move(c, 'test/dog')
+model = load_model('./models/pets_model.h5')
+model.summary()
+model.optimizer
 
-os.chdir('../../recognise-pets')
-        
 train_path = 'pet-images/train'        
 valid_path = 'pet-images/valid'        
 test_path = 'pet-images/test'
@@ -68,22 +53,44 @@ test_batches = ImageDataGenerator(preprocessing_function=tf.keras.applications.v
                                                                                                                            batch_size=10, 
                                                                                                                            shuffle=False)
 
-assert train_batches.n == 1000
-assert valid_batches.n == 200
-assert test_batches.n == 100
-assert train_batches.num_classes == valid_batches.num_classes == test_batches.num_classes == 2
+test_imgs, test_labels = next(test_batches)
+# plotImages(test_imgs)
+# print(test_labels)
+# print(test_batches.classes)
 
-imgs, labels = next(train_batches)
+predictions = model.predict(x=test_batches, verbose=0)
+print(np.round(predictions))
 
+# confusion_matrix
 
-def plotImages(images_arr):
-    fig, axes = plt.subplots(1, 10, figsize=(20,20))
-    axes = axes.flatten()
-    for img, ax in zip(images_arr, axes):
-        ax.imshow(img)
-        ax.axis('off')
-    plt.tight_layout()
-    plt.show()
+cm = confusion_matrix(y_true=test_batches.classes, y_pred=np.argmax(predictions, axis=-1))
+
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
     
-plotImages(imgs)
-print(labels)
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+    
+    print(cm)
+    
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j], horizontalalignment="center", color="white" if cm[i, j] > thresh else "black")
+    
+    plt.tight_layout()
+    plt.ylabel("True label")
+    plt.xlabel("Predicted label")
+    plt.show()
+        
+print(test_batches.class_indices)
+
+cm_plot_labels = ['cat', 'dog']
+plot_confusion_matrix(cm=cm, classes=cm_plot_labels, title='Confusion Matrix')
