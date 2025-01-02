@@ -75,5 +75,5 @@ model.summary()
 model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 model.fit(x=train_batches, validation_data=valid_batches, epochs=5, verbose=2)
 
-if os.path.isfile('./models/pets_model.h5') is False:
+if os.path.isfile('./models/pets_model_vgg16.h5') is False:
     model.save('./models/pets_model_vgg16.h5')
