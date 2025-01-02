@@ -19,7 +19,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 # print('Num GPUs Available')
 # tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
-os.chdir('pet-images')
+os.chdir('recognise-pets/pet-images')
 if os.path.isdir("train/dog") is False:
     os.makedirs("train/dog")
     os.makedirs("train/cat")
@@ -46,7 +46,7 @@ if os.path.isdir("train/dog") is False:
     for c in random.sample(glob.glob(dog_files), 50):
         shutil.move(c, 'test/dog')
 
-os.chdir('../../deep-learning')
+os.chdir('../../recognise-pets')
         
 train_path = 'pet-images/train'        
 valid_path = 'pet-images/valid'        
