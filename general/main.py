@@ -4,10 +4,10 @@ from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Activation, Dense
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.metrics import categorical_crossentropy
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import Activation, Dense # type: ignore
+from tensorflow.keras.optimizers import Adam # type: ignore
+from tensorflow.keras.metrics import categorical_crossentropy # type: ignore
 from sklearn.metrics import confusion_matrix
 import itertools
 import matplotlib.pyplot as plt
